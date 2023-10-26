@@ -40,6 +40,18 @@ namespace Sup2Marché.Repo
             oSqlConnection.Close();
             return (oEntity.email == null && oEntity.password == null ) ? null : oEntity;
         }
+        public UserEntity GetRoleByEmail(string email)
+        {
+            var oEntity = new UserEntity();
+            var oSqlConnection = new SqlConnection(_configuration?.GetConnectionString("SQL"));
+
+            var aEntity = oSqlConnection.Query<UserEntity>(oEntity.readrole("email"),
+                new { email = email }).ToList();
+            aEntity.ForEach(o => oEntity = o);
+
+            oSqlConnection.Close();
+            return (oEntity.email == null && oEntity.password == null) ? null : oEntity;
+        }
 
         public bool Update(UserEntity oEntity)
         {
@@ -99,6 +111,7 @@ namespace Sup2Marché.Repo
                 var oSqlConnection = new SqlConnection(_configuration?.GetConnectionString("SQL"));
                 var oSqlParam1 = new SqlParameter("@email", oEntity.email);
                 var oSqlParam2 = new SqlParameter("@password", BCrypt.Net.BCrypt.HashPassword(oEntity.password));
+                var oSqlParam3 = new SqlParameter("@role", oEntity.role);
 
                 oSqlConnection.Open();
                 var oSqlTransaction = oSqlConnection.BeginTransaction();
@@ -106,7 +119,7 @@ namespace Sup2Marché.Repo
                 {
                     var oSqlCommand = new SqlCommand(oEntity.CreateUser(), oSqlConnection, oSqlTransaction);
 
-                    oSqlCommand.Parameters.AddRange(new SqlParameter[] { oSqlParam1, oSqlParam2});
+                    oSqlCommand.Parameters.AddRange(new SqlParameter[] { oSqlParam1, oSqlParam2, oSqlParam3});
 
                     oSqlTransaction.Commit();
                     return Convert.ToInt32(oSqlCommand.ExecuteScalar());
@@ -127,32 +140,41 @@ namespace Sup2Marché.Repo
             }
         }
 
-        public string Login(UserEntity oEntity)
+            public Boolean Login(UserEntity oEntity)
+
+    {
+        bool isPasswordValid;
+        Model.Tools.JwtHandler jwtHandler = new Model.Tools.JwtHandler(_configuration.GetSection("JwtSettings")["SecretKey"]);
+        string? token = null;
+
+        var user = GetByEmail(oEntity.email);
+
+        Console.WriteLine("password " + oEntity.password);
+
+
+
+        if (user == null)
         {
-            Model.Tools.JwtHandler jwtHandler = new Model.Tools.JwtHandler(_configuration.GetSection("JwtSettings")["SecretKey"]);
-            string? token = null;
-
-            var user = GetByEmail(oEntity.email);
-
-            if (user == null)
-            {
-                throw new Exception("Utilisateur introuvable.");
-            }
-            else
-            {
-                bool isPasswordValid = BCrypt.Net.BCrypt.Verify(oEntity.password, user.password);
-
-                if (!isPasswordValid)
-                {
-                    throw new Exception("Mot de passe incorrect.");
-                }
-
-                token = jwtHandler.GenerateToken(user.id.ToString(), user.email);
-
-            }
-
-            return token;
+            throw new Exception("Utilisateur introuvable.");
         }
+        else
+        {
+             isPasswordValid = BCrypt.Net.BCrypt.Verify(oEntity.password, user.password);
+            Console.WriteLine("bool " + isPasswordValid);
+
+
+            if (!isPasswordValid)
+            {
+                throw new Exception("Mot de passe incorrect.");
+            }
+
+            token = jwtHandler.GenerateToken(user.id.ToString(), user.email);
+
+        }
+        Console.WriteLine("token " + token);
+        return isPasswordValid;
+    }
+
+}
 
     }
-}

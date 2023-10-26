@@ -55,6 +55,17 @@ app.MapPost("/userLogin", ([FromBody] UserEntity model) =>
 {
     return new UserRepo(builder.Configuration).Login(model);
 }).WithName("_User Login").WithName("User Login").WithTags("User");
+//  CREATE
+app.MapPut("/createUser", (UserEntity model) =>
+{
+    var ok = new UserRepo(builder.Configuration).Insert(model);
+    return ok != -1 ? Results.Created($"/{ok}", model.id = ok) : Results.Problem(new ProblemDetails { Detail = "L'insert n'a pas marché", Status = 500 });
+}).WithName("CREATE User").WithTags("User");
+
+app.MapGet("/getUserByEmail/{email}", (string email) =>
+{
+    return new UserRepo(builder.Configuration).GetByEmail(email);
+}).WithName("READ User by email").WithTags("User");
 
 
 
@@ -63,7 +74,7 @@ app.MapPost("/userLogin", ([FromBody] UserEntity model) =>
 // -------------------------------------------------
 //  CREATE
 
-app.MapPut("/CreatedProduit", (IConfiguration configuration, produitEntity model) =>
+app.MapPost("/CreatedProduit", (IConfiguration configuration, produitEntity model) =>
 {
     IResult res;
     try
@@ -110,7 +121,7 @@ app.MapPost("/UpdateQuantite", (IConfiguration configuration, produitEntity mode
     return res;
 }).WithTags("Produit");
 
-app.MapDelete("/DeleteProduit", (IConfiguration configuration, int id) =>
+app.MapDelete("/DeleteProduit/{id}", (IConfiguration configuration, int id) =>
 {
     IResult res;
     try
@@ -125,6 +136,75 @@ app.MapDelete("/DeleteProduit", (IConfiguration configuration, int id) =>
     }
     return res;
 }).WithTags("Produit");
+
+
+// -------------------------------------------------
+// --- CRUD CATEGORIE ---
+// -------------------------------------------------
+//  CREATE
+
+app.MapPost("/CreatedCategorie", (IConfiguration configuration, categorieEntity model) =>
+{
+    IResult res;
+    try
+    {
+        categorieRepo repo = new categorieRepo(configuration);
+        repo.Created(model);
+        res = Results.Ok();
+    }
+    catch (Exception ex)
+    {
+        res = Results.BadRequest($"Une erreur s'est produite : {ex.Message}");
+    }
+    return res;
+}).WithTags("Catégorie");
+
+app.MapGet("/Categories", (IConfiguration configuration) =>
+{
+    IResult res;
+    try
+    {
+        categorieRepo repo = new categorieRepo(configuration);
+        res = Results.Ok(repo.ReadListCat());
+    }
+    catch (Exception ex)
+    {
+        res = Results.BadRequest($"Une erreur s'est produite : {ex.Message}");
+    }
+    return res;
+}).WithTags("Catégorie");
+
+app.MapPost("/Update", (IConfiguration configuration, categorieEntity model) =>
+{
+    IResult res;
+    try
+    {
+        categorieRepo repo = new categorieRepo(configuration);
+        repo.Update(model);
+        res = Results.Ok();
+    }
+    catch (Exception ex)
+    {
+        res = Results.BadRequest($"Une erreur s'est produite : {ex.Message}");
+    }
+    return res;
+}).WithTags("Catégorie");
+
+app.MapDelete("/DeleteCatégorie/{id}", (IConfiguration configuration, int id) =>
+{
+    IResult res;
+    try
+    {
+        categorieRepo repo = new categorieRepo(configuration);
+        repo.Delete(id);
+        res = Results.Ok();
+    }
+    catch (Exception ex)
+    {
+        res = Results.BadRequest($"Une erreur s'est produite : {ex.Message}");
+    }
+    return res;
+}).WithTags("Catégorie");
 
 app.Run();
 

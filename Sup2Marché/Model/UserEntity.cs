@@ -10,23 +10,31 @@ namespace Sup2Marché.Model
 
         public string? password { get; set; }
 
+        public int? role { get; set; }
+
         public UserEntity() { }
 
-        public UserEntity(int id, string email, string password)
+        public UserEntity(int id, string email, string password, int? role)
         {
             id = id;
             email = email;
             password = password;
+            role = role;
         }
         public string CreateUser()
         {
-            return "Insert Into utlisateur (email, password) values (@email, @password); Select @@Identity; ";
+            return "Insert Into utilisateur (email, password, role) values (@email, @password, @role); Select @@Identity; ";
         }
 
         public string ReadUser(string type)
         {
             var typeExtend = (type == "id") ? "user" : "";
             return $"Select * From utilisateur Where {type} = @{type}";
+
+        }
+        public string readrole(string email)
+        {
+            return "select role, nom from utilisateur where email = @email";
 
         }
 
