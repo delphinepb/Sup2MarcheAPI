@@ -93,6 +93,23 @@ app.MapGet("/Produits", (IConfiguration configuration) =>
     }
     return res;
 }).WithTags("Produit");
+
+app.MapPost("/UpdateQuantite", (IConfiguration configuration, produitEntity model) =>
+{
+    IResult res;
+    try
+    {
+        produitRepo repo = new produitRepo(configuration);
+        repo.Update(model);
+        res = Results.Ok();
+    }
+    catch (Exception ex)
+    {
+        res = Results.BadRequest($"Une erreur s'est produite : {ex.Message}");
+    }
+    return res;
+}).WithTags("Produit");
+
 app.MapDelete("/DeleteProduit", (IConfiguration configuration, int id) =>
 {
     IResult res;

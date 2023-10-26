@@ -20,7 +20,8 @@ namespace Sup2Marché.Repo
                 {
                     model.id,
                     model.nom,
-                    model.quantite
+                    model.quantite,
+                    model.categorie
                 });
             }
         }

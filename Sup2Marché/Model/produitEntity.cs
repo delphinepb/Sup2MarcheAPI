@@ -7,19 +7,21 @@
 
         public int quantite { get; set; }
 
+        public int categorie { get; set; }
+
         public string CreatedProduit()
         {
-            return "INSERT INTO produit(nom, quantite) values (@nom, @quantite)";
+            return "INSERT INTO produit(nom, quantite, categorie) values (@nom, @quantite, @categorie)";
         }
 
         public string ReadProduit()
         {
-            return "SELECT id, nom, quantite from produit where id = @id";
+            return "SELECT id, nom, quantite, categorie from produit where id = @id";
         }
 
         public string UpdateProduit()
         {
-            return "UPDATE produit SET nom = @nom, quantite = @quantite WHERE id = @id";
+            return "UPDATE produit set quantite = @quantite WHERE id = @id";
         }
 
         public string DeleteProduit()
@@ -29,7 +31,7 @@
 
         public string Readall()
         {
-            return "SELECT id, nom, quantite FROM produit";
+            return "SELECT id, nom, quantite, categorie FROM produit";
         }
     }
 }
