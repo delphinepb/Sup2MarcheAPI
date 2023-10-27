@@ -65,7 +65,8 @@ namespace Sup2Marché.Repo
                 {
                     id = (int)row["id"],
                     nom = (string)row["nom"],
-                    quantite = (int)row["quantite"]
+                    quantite = (int)row["quantite"],
+                    categorie = (int)row["categorie"]
 
                 });
             }
